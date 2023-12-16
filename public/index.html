@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snatch</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" href="favicon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <div id="logo">
+      <img src="images/logo.png" alt="" />
+      <h1>Snatch</h1>
+    </div>
+    <form
+      action="/public"
+      method="post"
+      id="screenForm"
+      autocomplete="off"
+      onsubmit="showMessage(event)"
+    >
+      <div class="formEl">
+        <label for="websiteName">Retailer name*:</label>
+        <input type="text" id="websiteName" name="websiteName" required /><br />
+      </div>
+      <div class="formEl">
+        <label for="hp">Homepage URL*:</label>
+        <input
+          type="text"
+          id="hp"
+          name="urls"
+          class="inputEl"
+          pattern='pattern="^(https?://|www)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$"'
+          oninvalid="setCustomValidity('Please enter a valid URL')"
+          required
+        /><br />
+      </div>
+      <div class="formEl">
+        <label for="search">Search page URL:</label>
+        <input type="text" id="search" name="urls" class="inputEl" /><br />
+      </div>
+      <div class="formEl">
+        <label for="pdp">Product page URL:</label>
+        <input type="text" id="pdp" name="urls" class="inputEl" /><br />
+      </div>
+      <p id="add_btn"><span id="add_icon">+</span>Add URL</p>
+      <div id="devices">
+        <div class="device">
+          <label for="desktop">Desktop</label>
+          <input
+            type="checkbox"
+            name="devices"
+            id="desktop"
+            value="desktop"
+            checked
+          />
+        </div>
+        <div class="device">
+          <label for="mobile">Mobile</label>
+          <input type="checkbox" name="devices" id="mobile" value="mobile" />
+        </div>
+      </div>
+      <div id="cta">
+        <input type="submit" id="submit" value="Generate screenshots" />
+        <div id="loadingSpinner" class="spinner"></div>
+      </div>
+    </form>
+    <script>
+      const addBtn = document.querySelector("#add_btn");
+      let removeBtn;
+      const checkboxes = document.querySelectorAll(
+        '.device input[type="checkbox"]'
+      );
+
+      addBtn.addEventListener("click", function () {
+        let template = `<div class="formEl extra_url">
+            <label for="search">{label}</label>
+            <input type="text" id="{id}" name="urls" class="inputEl" /><span class="remove_btn">x</span><br />
+          </div>`;
+
+        const inputs = document.querySelectorAll(".formEl");
+        const index = inputs.length - 3;
+
+        if (inputs.length <= 9) {
+          template = template
+            .replace("{label}", `Extra URL ${index}:`)
+            .replace("{id}", `extra_url_${index}`);
+
+          const el = document.createElement("div");
+          el.innerHTML = template;
+          inputs[inputs.length - 1].after(el);
+
+          if (inputs.length === 9) {
+            addBtn.style.display = "none";
+          }
+        }
+
+        const updateFormEls = function (formEls) {
+          formEls.forEach((el, index) => {
+            const label = el.querySelector("label");
+            const input = el.querySelector("input");
+            label.textContent = `Extra URL ${index + 1}:`;
+            input.id = `extra_url_${index + 1}`;
+          });
+        };
+
+        removeBtn = document.querySelectorAll(".remove_btn");
+        removeBtn.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            this.parentNode.remove();
+            updateFormEls(document.querySelectorAll(".extra_url"));
+          });
+        });
+      });
+
+      checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", function () {
+          // If the current checkbox is unchecked, automatically check the other one
+          if (!this.checked) {
+            checkboxes.forEach(function (otherCheckbox) {
+              if (otherCheckbox !== checkbox) {
+                otherCheckbox.checked = true;
+              }
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
