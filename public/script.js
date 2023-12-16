@@ -47,7 +47,12 @@ const genScreenshot = async (urls, name, devices) => {
           await page.setUserAgent(mobileUserAgent);
         }
 
-        await page.goto(url, { waitUntil: "networkidle2" });
+        await page
+          .goto(url, {
+            waitUntil: "networkidle2",
+            timeout: 90000, // Extend timeout to 60 seconds
+          })
+          .catch((e) => console.error(`Error loading page: ${e.message}`));
 
         await page
           .evaluate(() => {
