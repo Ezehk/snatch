@@ -82,7 +82,7 @@ const genScreenshot = async (urls, name, devices) => {
           })
           .catch((e) => console.error(e));
 
-        const screenshotPath = `screenshots/${name}_${labels[i]}_${eleDev}.png`;
+        const screenshotPath = `${name}_${labels[i]}_${eleDev}.png`;
         await page.screenshot({
           path: screenshotPath,
           fullPage: true,
