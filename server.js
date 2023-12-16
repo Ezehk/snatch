@@ -11,6 +11,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post("/public", async (req, res) => {
+  console.log("Received request:", req.body);
+
   if (!req.body || !Array.isArray(req.body.urls)) {
     return res.status(400).send("Invalid request body");
   }
@@ -32,7 +34,7 @@ app.post("/public", async (req, res) => {
         fs.unlinkSync(zipFilePath); // Delete the zip file after sending
       });
   } catch (error) {
-    console.error(error);
+    console.error("Error caught in POST /public:", error);
     res.status(500).send(`Error: ${error.message}`);
   }
 });

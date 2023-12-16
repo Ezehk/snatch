@@ -86,8 +86,8 @@ const genScreenshot = async (urls, name, devices) => {
 
         await page.close();
       } catch (error) {
-        console.error(`Error processing ${url}: ${error.message}`);
-        continue;
+        console.error("Error in genScreenshot:", error);
+        throw error; // Rethrow the error to be caught in server.js
       }
     }
   }
