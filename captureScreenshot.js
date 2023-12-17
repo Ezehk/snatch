@@ -14,10 +14,10 @@ const genScreenshot = async (urls, name, devices) => {
 
   const device = Array.isArray(devices) ? devices : [devices];
 
-  const browser = await puppeteer.launch(/* {
+  const browser = await puppeteer.launch({
     executablePath: "/usr/bin/google-chrome-stable",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  } */);
+  });
   const zipFile = archiver("zip", { zlib: { level: 9 } });
   const output = fs.createWriteStream(`${name}_screenshots.zip`);
   const mobileUserAgent =
