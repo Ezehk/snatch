@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const captureScreenshots = require("./public/script");
+const captureScreenshots = require("./captureScreenshot");
 const path = require("path");
 const fs = require("fs");
 
