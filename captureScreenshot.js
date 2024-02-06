@@ -1,4 +1,6 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+
 const archiver = require("archiver");
 const fs = require("fs");
 
@@ -7,6 +9,9 @@ const devicesVP = {
   desktop: 1200,
   mobile: 390,
 };
+
+puppeteer.use(StealthPlugin());
+
 const genScreenshot = async (urls, name, devices) => {
   console.log("Received name:", name);
   console.log("Received URLs:", urls);
@@ -15,13 +20,18 @@ const genScreenshot = async (urls, name, devices) => {
   const device = Array.isArray(devices) ? devices : [devices];
 
   const browser = await puppeteer.launch({
-    executablePath: "/usr/bin/google-chrome-stable",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    headless: false,
+    //executablePath: "/usr/bin/google-chrome-stable",
+    //args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const zipFile = archiver("zip", { zlib: { level: 9 } });
   const output = fs.createWriteStream(`${name}_screenshots.zip`);
-  const mobileUserAgent =
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
+  const userAgent = {
+    desktop:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+    mobile:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+  };
 
   zipFile.pipe(output);
 
@@ -37,15 +47,7 @@ const genScreenshot = async (urls, name, devices) => {
         console.log(device[indexEl]);
         console.log(devicesVP[device[indexEl]]);
 
-        await page.setViewport({
-          width: devicesVP[device[indexEl]],
-          height: 800,
-          deviceScaleFactor: 1,
-        });
-
-        if (eleDev === "mobile") {
-          await page.setUserAgent(mobileUserAgent);
-        }
+        await page.setUserAgent(userAgent[eleDev]);
 
         await page
           .goto(url, {
@@ -78,9 +80,26 @@ const genScreenshot = async (urls, name, devices) => {
                   resolve(); // Resolve if we've reached the bottom
                 }
               } while (currentScrollTop !== lastScrollTop);
+              /* window.scrollTo(0, 0);
+              await page.waitForTimeout(1000);
+
+              resolve(); */
             });
           })
           .catch((e) => console.error(e));
+
+        const dimensions = await page.evaluate(() => {
+          return {
+            width: document.documentElement.scrollWidth,
+            height: document.documentElement.scrollHeight,
+          };
+        });
+
+        await page.setViewport({
+          width: devicesVP[device[indexEl]],
+          height: dimensions.height,
+          deviceScaleFactor: 1,
+        });
 
         const screenshotPath = `${name}_${labels[i]}_${eleDev}.png`;
         await page.screenshot({
