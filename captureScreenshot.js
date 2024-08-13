@@ -21,8 +21,18 @@ const genScreenshot = async (urls, name, devices) => {
 
   const browser = await puppeteer.launch({
     executablePath: "/usr/bin/google-chrome-stable",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage", // Overcomes limited resource problems
+      "--disable-gpu", // Disable GPU hardware acceleration
+      "--no-zygote", // Helps to avoid crashes in some environments
+      "--single-process", // Runs the browser in a single process
+    ],
+    headless: true,
+    timeout: 90000, // Increase timeout
   });
+
   const zipFile = archiver("zip", { zlib: { level: 9 } });
   const output = fs.createWriteStream(`${name}_screenshots.zip`);
   const userAgent = {
