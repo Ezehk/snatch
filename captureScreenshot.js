@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+const autoconsent = require("@duckduckgo/autoconsent/dist/autoconsent.puppet.js");
+const extraRules = require("@duckduckgo/autoconsent/rules/rules.json");
 
 const archiver = require("archiver");
 const fs = require("fs");
@@ -32,6 +34,7 @@ const genScreenshot = async (urls, name, devices) => {
     headless: true,
     timeout: 90000, // Increase timeout
   });
+
   const zipFile = archiver("zip", { zlib: { level: 9 } });
   const output = fs.createWriteStream(`${name}_screenshots.zip`);
   const userAgent = {
@@ -40,6 +43,14 @@ const genScreenshot = async (urls, name, devices) => {
   };
 
   zipFile.pipe(output);
+
+  // Define rules for autoconsent
+  const consentomatic = extraRules.consentomatic;
+  const rules = [
+    ...autoconsent.rules,
+    ...Object.keys(consentomatic).map((name) => new autoconsent.ConsentOMaticCMP(`com_${name}`, consentomatic[name])),
+    ...extraRules.autoconsent.map((spec) => autoconsent.createAutoCMP(spec)),
+  ];
 
   for (const [indexEl, eleDev] of device.entries()) {
     console.log(indexEl, eleDev);
@@ -55,44 +66,21 @@ const genScreenshot = async (urls, name, devices) => {
 
         await page.setUserAgent(userAgent[eleDev]);
 
-        await page
-          .goto(url, {
-            waitUntil: "networkidle2",
-            timeout: 90000, // Extend timeout to 60 seconds
-          })
-          .catch((e) => console.error(`Error loading page: ${e.message}`));
+        // Attach autoconsent to the page
+        page.once("load", async () => {
+          const tab = autoconsent.attachToPage(page, url, rules, 10);
+          try {
+            await tab.checked;
+            await tab.doOptIn(); // Choose between doOptIn or doOptOut based on your needs
+          } catch (e) {
+            console.warn(`CMP error`, e);
+          }
+        });
 
-        await page
-          .evaluate(() => {
-            return new Promise(async (resolve, reject) => {
-              let distance = 100;
-              let lastScrollTop = 0;
-              let currentScrollTop = 0;
-
-              // Function to perform a single scroll step
-              const scrollStep = () => {
-                return new Promise((resolveStep) => {
-                  window.scrollBy(0, distance);
-                  setTimeout(() => resolveStep(window.scrollY), 100); // Short delay to allow the scroll to complete
-                });
-              };
-
-              do {
-                lastScrollTop = currentScrollTop;
-                currentScrollTop = await scrollStep(); // Perform scroll and update currentScrollTop
-
-                // Check if scrolled position didn't change
-                if (currentScrollTop === lastScrollTop) {
-                  resolve(); // Resolve if we've reached the bottom
-                }
-              } while (currentScrollTop !== lastScrollTop);
-              /* window.scrollTo(0, 0);
-              await page.waitForTimeout(1000);
-
-              resolve(); */
-            });
-          })
-          .catch((e) => console.error(e));
+        await page.goto(url, {
+          waitUntil: "networkidle2",
+          timeout: 90000, // Extend timeout to 60 seconds
+        });
 
         const dimensions = await page.evaluate(() => {
           return {
