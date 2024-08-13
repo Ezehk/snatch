@@ -20,17 +20,14 @@ const genScreenshot = async (urls, name, devices) => {
   const device = Array.isArray(devices) ? devices : [devices];
 
   const browser = await puppeteer.launch({
-    headless: false,
-    //executablePath: "/usr/bin/google-chrome-stable",
-    //args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    executablePath: "/usr/bin/google-chrome-stable",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const zipFile = archiver("zip", { zlib: { level: 9 } });
   const output = fs.createWriteStream(`${name}_screenshots.zip`);
   const userAgent = {
-    desktop:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
-    mobile:
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+    desktop: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+    mobile: "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
   };
 
   zipFile.pipe(output);
