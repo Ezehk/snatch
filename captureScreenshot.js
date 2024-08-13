@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-const autoconsent = require("@duckduckgo/autoconsent/dist/autoconsent.puppet.js");
+const autoconsent = require("@duckduckgo/autoconsent");
 const extraRules = require("@duckduckgo/autoconsent/rules/rules.json");
 
 const archiver = require("archiver");
