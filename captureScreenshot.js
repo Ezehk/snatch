@@ -29,7 +29,7 @@ const genScreenshot = async (urls, name, devices) => {
       "--no-zygote", // Helps to avoid crashes in some environments
       "--single-process", // Runs the browser in a single process
     ],
-    headless: true,
+    headless: false,
     timeout: 90000, // Increase timeout
   });
 
