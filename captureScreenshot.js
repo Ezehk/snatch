@@ -29,10 +29,9 @@ const genScreenshot = async (urls, name, devices) => {
       "--no-zygote", // Helps to avoid crashes in some environments
       "--single-process", // Runs the browser in a single process
     ],
-    headless: false,
+    headless: true,
     timeout: 90000, // Increase timeout
   });
-
   const zipFile = archiver("zip", { zlib: { level: 9 } });
   const output = fs.createWriteStream(`${name}_screenshots.zip`);
   const userAgent = {
