@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@duckduckgo/autoconsent": "^10.14.0",
+    "@cliqz/adblocker-puppeteer": "^1.31.3",
+    "@duckduckgo/autoconsent": "^1.0.8",
     "archiver": "^7.0.1",
     "body-parser": "^1.20.2",
+    "cross-fetch": "^4.0.0",
     "express": "^4.19.2",
     "fs": "^0.0.1-security",
     "puppeteer": "^23.0.2",
