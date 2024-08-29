@@ -30,7 +30,7 @@ const genScreenshot = async (urls, name, devices) => {
       "--single-process", // Runs the browser in a single process
     ],
     headless: true,
-    timeout: 90000, // Increase timeout
+    timeout: 500000, // Increase timeout
   });
 
   // Define rules for autoconsent
